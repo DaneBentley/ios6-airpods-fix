@@ -1,0 +1,4 @@
+layout/Library/
+*.deb
+!docs/debs/*.deb
+.DS_Store

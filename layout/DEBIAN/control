@@ -1,0 +1,10 @@
+Package: com.danebentley.ios6airpodsfix
+Name: iOS 6 AirPods Fix
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Fixes AirPods going silent when the next song starts on iOS 6.1.6.
+Maintainer: Dane Bentley
+Author: Dane Bentley
+Section: Tweaks
+Depends: mobilesubstrate
+Homepage: https://github.com/DaneBentley/ios6-airpods-fix
