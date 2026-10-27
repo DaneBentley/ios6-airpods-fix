@@ -1,8 +1,11 @@
-# AirPods go silent after the first song on iOS 6 (fixed)
+# AirPods on iOS 6: silent after the first song, and dropping every minute (fixed)
 
-On an iPod touch running iOS 6.1.6, AirPods play the first song, then go silent when the next one starts. The iPod still shows it playing. Restarting the Music app or reconnecting the AirPods brings sound back until the next song.
+On an iPod touch running iOS 6.1.6, AirPods have two problems:
 
-This tweak fixes it. Songs play one after another like they should.
+1. **They go silent when the next song starts.** The iPod still shows it playing. Restarting the Music app or reconnecting the AirPods brings sound back until the next song.
+2. **They disconnect and reconnect about once a minute.** It gets worse with a Mac or iPhone nearby, which grabs the AirPods during the gap.
+
+This tweak fixes both. Songs play one after another and the AirPods stay connected.
 
 ## Install
 
@@ -28,11 +31,13 @@ On any other device or iOS version it does nothing: it checks for the exact Blue
 
 ## Why it happens
 
-Each Bluetooth audio packet carries a timestamp that tells the headphones when to play it. iOS 6 counts that timestamp in bytes sent instead of time passed. When a song changes, the iPod sends nothing for about 2 seconds, so the timestamp barely moves. Every packet after that looks 2 seconds late, and AirPods throw them all away. Older Bluetooth headphones don't check timestamps this strictly, which is why they work fine.
+**Silence at song changes.** Each Bluetooth audio packet carries a timestamp that tells the headphones when to play it. iOS 6 counts that timestamp in bytes sent instead of time passed. When a song changes, the iPod sends nothing for about 2 seconds, so the timestamp barely moves. Every packet after that looks 2 seconds late, and AirPods throw them all away. Older Bluetooth headphones don't check timestamps this strictly, which is why they work fine.
 
 The tweak makes the timestamp follow real time at 44.1 kHz, as the A2DP spec requires (RFC 3016, RFC 3550). Details are in [`src/A2DPClock.m`](src/A2DPClock.m).
 
 This is the bug in [this Apple Community thread](https://discussions.apple.com/thread/8641081), which was closed without a fix.
+
+**Disconnecting every minute.** AirPods also connect as a headset (the mic and calls channel) and report their battery level on it. Every message they send ends with a line ending, except that battery report. iOS 6 waits for the line ending before it answers, so it never answers. The AirPods hang up after 10 seconds, and after about three tries they drop the iPod completely, music included. The tweak treats the end of the message as the end of the line, the way newer iPhones do, and answers. Details are in [`src/ATLineEnd.m`](src/ATLineEnd.m).
 
 ## Build from source
 
